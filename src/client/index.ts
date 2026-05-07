@@ -1,6 +1,10 @@
 import amqp from "amqplib";
 
+import { SimpleQueueType } from "../internal/pubsub/declareAndBind.js";
+
 import { clientWelcome } from "../internal/gamelogic/gamelogic.js";
+import { declareAndBind } from "../internal/pubsub/declareAndBind.js";
+import { PauseKey, ExchangePerilDirect } from "../internal/routing/routing.js";
 
 async function main() {
   console.log("Starting Peril client...");
@@ -9,6 +13,8 @@ async function main() {
   console.log("Connection succesful");
 
   const username = await clientWelcome();
+
+  await declareAndBind(conn, ExchangePerilDirect, `pause.${username}`, PauseKey, SimpleQueueType.Transient);
 }
 
 main().catch((err) => {
