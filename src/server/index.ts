@@ -1,7 +1,10 @@
 import amqp from "amqplib";
 
+import { SimpleQueueType } from "../internal/pubsub/declareAndBind.js";
+
 import { publishJSON } from "../internal/pubsub/publish.js";
-import { PauseKey, ExchangePerilDirect } from "../internal/routing/routing.js";
+import { declareAndBind } from "../internal/pubsub/declareAndBind.js";
+import { PauseKey, ExchangePerilDirect, ExchangePerilTopic, GameLogSlug } from "../internal/routing/routing.js";
 import type { PlayingState } from "../internal/gamelogic/gamestate.js";
 import { printServerHelp, getInput } from "../internal/gamelogic/gamelogic.js";
 
@@ -10,6 +13,8 @@ async function main() {
   const rabbitConnString = "amqp://guest:guest@localhost:5672/";
   const conn = await amqp.connect(rabbitConnString);
   console.log("Connection successful");
+
+  await declareAndBind(conn, ExchangePerilTopic, GameLogSlug, `${GameLogSlug}.*`, SimpleQueueType.Durable);
 
   const confirmChannel = await conn.createConfirmChannel();
   printServerHelp();
